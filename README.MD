@@ -22,8 +22,8 @@ docker --version
 ## 2. Clonar o projeto
 
 ```bash
-git clone <URL_DO_REPOSITORIO> trabalho_1
-cd trabalho_1
+git clone <URL_DO_REPOSITORIO>
+cd Trabalho_1_PSPD
 ```
 
 ## 3. Servidor A (Python - CountWords)
