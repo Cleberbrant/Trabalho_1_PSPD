@@ -1,0 +1,51 @@
+# --- Geral ---
+*.log
+*.tmp
+*.swp
+*.DS_Store
+
+# VS Code (opcional manter configs específicas)
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# --- Python (server-a) ---
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+build/
+dist/
+.env
+.env.*
+
+# --- Node (frontend-web & gateway-stub) ---
+frontend-web/node_modules/
+gateway-stub/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+# Build/output (adicione se gerar bundle)
+frontend-web/dist/
+frontend-web/.cache/
+gateway-stub/dist/
+gateway-stub/.cache/
+
+# --- Go (server-b) ---
+server-b-chars/*.exe
+server-b-chars/*.test
+server-b-chars/*.out
+server-b-chars/server-b
+# gen binaries anywhere
+*.exe
+*.out
+*.test
+
+# --- Envoy / runtime ---
+envoy*.log
+/tmp/
+# Docker artefacts locais
+*.tar

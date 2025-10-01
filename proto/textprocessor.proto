@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package textprocessor;
+option go_package = "server-b-chars/textprocessorpb";
+
+// Serviço para processamento de texto
+service TextProcessor {
+  // Conta palavras (Servidor A)
+  rpc CountWords (TextRequest) returns (WordCountResponse);
+
+  // Conta caracteres (Servidor B)  
+  rpc CountCharacters (TextRequest) returns (CharCountResponse);
+
+  // Demonstrações dos 4 tipos de chamada gRPC
+  // 1. Unary (já temos acima)
+
+  // 2. Server Streaming - envia texto em chunks
+  rpc StreamWords (TextRequest) returns (stream WordChunk);
+
+  // 3. Client Streaming - recebe múltiplos textos e conta total
+  rpc CountMultipleTexts (stream TextRequest) returns (TotalCountResponse);
+
+  // 4. Bidirectional Streaming - análise em tempo real
+  rpc AnalyzeTextStream (stream TextRequest) returns (stream AnalysisResponse);
+}
+
+// Mensagens
+message TextRequest {
+  string text = 1;
+}
+
+message WordCountResponse {
+  int32 word_count = 1;
+}
+
+message CharCountResponse {
+  int32 char_count = 1;
+}
+
+// Para demonstrações streaming
+message WordChunk {
+  string word = 1;
+  int32 position = 2;
+}
+
+message TotalCountResponse {
+  int32 total_words = 1;
+  int32 total_chars = 2;
+  int32 text_count = 3;
+}
+
+message AnalysisResponse {
+  int32 current_words = 1;
+  int32 current_chars = 2;
+  string status = 3;
+}

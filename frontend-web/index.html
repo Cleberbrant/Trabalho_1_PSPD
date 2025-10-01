@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>PSPD - Contador de Texto via gRPC</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>🚀 PSPD - Sistema gRPC Completo</h1>
+      <p class="subtitle">
+        Frontend → Gateway → Servidores A/B (gRPC + HTTP/2)
+      </p>
+
+      <div class="config">
+        <label for="gatewayUrl">🔗 Endpoint gRPC-Web (Envoy):</label>
+        <input
+          type="text"
+          id="gatewayUrl"
+          value="http://localhost:8080"
+          placeholder="http://localhost:8080"
+        />
+      </div>
+
+      <div class="input-section">
+        <label for="textInput">📝 Digite seu texto para análise:</label>
+        <textarea
+          id="textInput"
+          rows="6"
+          placeholder="Escreva aqui o texto..."
+        ></textarea>
+
+        <div class="buttons">
+          <button id="submitBtn" type="button">📊 ANALISAR VIA gRPC</button>
+          <button id="clearBtn" type="button">🗑️ LIMPAR</button>
+          <button id="exampleBtn" type="button">📋 EXEMPLO</button>
+        </div>
+      </div>
+
+      <div class="results">
+        <div class="result-box">
+          <h3>📖 Contador de Palavras</h3>
+          <div id="wordCount" class="count">-</div>
+          <small>Servidor A (Python) via gRPC</small>
+        </div>
+
+        <div class="result-box">
+          <h3>🔤 Contador de Caracteres</h3>
+          <div id="charCount" class="count">-</div>
+          <small>Servidor B (Go) via gRPC</small>
+        </div>
+      </div>
+
+      <div id="error" class="error" style="display: none"></div>
+
+      <div class="architecture-info">
+        <p>
+          📱 Frontend (3000) ── gRPC-Web ──► Envoy (8080) ── gRPC ──► Gateway
+          (4001) ── Servidores A/B
+        </p>
+      </div>
+    </div>
+
+    <script type="module" src="./app.ts"></script>
+  </body>
+</html>
