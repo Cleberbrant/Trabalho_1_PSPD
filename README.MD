@@ -66,7 +66,7 @@ Porta: 4001 (encaminha CountWords -> server A, CountCharacters -> server B)
 Na raiz do projeto:
 
 ```bash
-cd ..  # garantir que está em trabalho_1
+cd ..  # garantir que está em Trabalho_1_PSPD
 docker rm -f envoy || true
 docker run -d --name envoy \
   --network host \
