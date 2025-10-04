@@ -1,5 +1,14 @@
 # PSPD - Sistema gRPC (Palavras / Caracteres)
 
+## Objetivo Principal
+
+O projeto implementa um sistema de processamento de texto distribuído que conta palavras e caracteres usando diferentes servidores, demonstrando conceitos de:
+- Comunicação entre serviços (microserviços)
+- Protocolo gRPC com diferentes tipos de streaming
+- Arquitetura distribuída com múltiplas linguagens 
+- Proxy/Gateway para roteamento de requisições 
+- gRPC-Web para comunicação frontend-backend
+
 Ambiente local: Ubuntu + Python (server A) + Go (server B) + Node (gateway + frontend) + Envoy (gRPC-Web).
 
 ## 1. Instalar dependências base (Ubuntu), é necessário ter docker instalado(Para rodar envoy.yaml)
