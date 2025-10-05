@@ -151,43 +151,46 @@ Se usar venv:
 deactivate
 ```
 
-## 12. ✨ Versão Kubernetes (NOVA!)
+## 12. ✨ Versão Kubernetes
 
-Para rodar o sistema completo no Kubernetes com alta disponibilidade:
+### Pré-requisitos
+- Docker instalado e funcionando (`docker ps` deve funcionar)
+- kubectl instalado
+- Cluster Kubernetes (minikube, kind, ou Docker Desktop)
 
-### Pré-requisitos Kubernetes
-- Docker instalado
-- kubectl instalado  
-- kind ou minikube para cluster local
-
-### Deploy Kubernetes
+### Como Rodar
 ```bash
-# 1. Criar cluster kind (se não tiver um)
+# 1. Iniciar cluster (escolha um)
+minikube start
+# OU
 kind create cluster --name grpc-cluster
 
-# 2. Construir e deployar
+# 2. Construir e fazer deploy
 cd k8s
-./build-images.sh  # Constrói todas as imagens Docker
-./deploy.sh        # Faz deploy no Kubernetes
+./build-images.sh  # Constrói as imagens Docker
+./deploy.sh        # Deploy no Kubernetes
 
-# 3. Acessar a aplicação
+# 3. Acessar (em terminais separados)
+kubectl port-forward -n grpc-textprocessor service/frontend-service 3000:80
+kubectl port-forward -n grpc-textprocessor service/envoy-service 8080:8080
+
+# 4. Usar a aplicação
 # Frontend: http://localhost:3000
-# gRPC-Web: http://localhost:8080
 ```
 
-### Status do Deploy Kubernetes
-- ✅ **Server A** (Python): 2 replicas - Contador de palavras
-- ✅ **Server B** (Go): 2 replicas - Contador de caracteres  
-- ✅ **Gateway** (Node.js): 2 replicas - Roteamento gRPC
-- ✅ **Envoy Proxy**: 2 replicas - gRPC-Web bridge
-- ✅ **Frontend Web**: 2 replicas - Interface do usuário
+### Como Parar
+```bash
+# Remover do Kubernetes
+kubectl delete -f k8s/
 
-🎯 **Vantagens da versão Kubernetes:**
-- **Alta disponibilidade** com múltiplas replicas
-- **Service discovery** automático
-- **Load balancing** nativo
-- **Health checks** configurados
-- **Scaling** horizontal automático
-- **Configuração via ConfigMaps**
+# Parar cluster (opcional)
+minikube stop
+# OU
+kind delete cluster --name grpc-cluster
+```
 
-Veja `k8s/README-KUBERNETES.md` para detalhes completos!
+### O que é Criado
+- **5 serviços** com 2 replicas cada (total: 10 pods)
+- **Load balancers** automáticos
+- **Service discovery** interno
+- **Configurações** via ConfigMaps
