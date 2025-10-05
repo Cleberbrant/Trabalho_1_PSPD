@@ -150,3 +150,44 @@ Se usar venv:
 ```bash
 deactivate
 ```
+
+## 12. ✨ Versão Kubernetes (NOVA!)
+
+Para rodar o sistema completo no Kubernetes com alta disponibilidade:
+
+### Pré-requisitos Kubernetes
+- Docker instalado
+- kubectl instalado  
+- kind ou minikube para cluster local
+
+### Deploy Kubernetes
+```bash
+# 1. Criar cluster kind (se não tiver um)
+kind create cluster --name grpc-cluster
+
+# 2. Construir e deployar
+cd k8s
+./build-images.sh  # Constrói todas as imagens Docker
+./deploy.sh        # Faz deploy no Kubernetes
+
+# 3. Acessar a aplicação
+# Frontend: http://localhost:3000
+# gRPC-Web: http://localhost:8080
+```
+
+### Status do Deploy Kubernetes
+- ✅ **Server A** (Python): 2 replicas - Contador de palavras
+- ✅ **Server B** (Go): 2 replicas - Contador de caracteres  
+- ✅ **Gateway** (Node.js): 2 replicas - Roteamento gRPC
+- ✅ **Envoy Proxy**: 2 replicas - gRPC-Web bridge
+- ✅ **Frontend Web**: 2 replicas - Interface do usuário
+
+🎯 **Vantagens da versão Kubernetes:**
+- **Alta disponibilidade** com múltiplas replicas
+- **Service discovery** automático
+- **Load balancing** nativo
+- **Health checks** configurados
+- **Scaling** horizontal automático
+- **Configuração via ConfigMaps**
+
+Veja `k8s/README-KUBERNETES.md` para detalhes completos!

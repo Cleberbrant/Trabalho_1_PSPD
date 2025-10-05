@@ -7,7 +7,7 @@ import { fileURLToPath } from "url";
 const { ServerReflection } = reflectionPkg || {};
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const PROTO_PATH = path.join(__dirname, "..", "proto", "textprocessor.proto");
+const PROTO_PATH = path.join(__dirname, "proto", "textprocessor.proto");
 
 const pkgDef = protoLoader.loadSync(PROTO_PATH, {
   keepCase: true,
