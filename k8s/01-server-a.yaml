@@ -1,0 +1,66 @@
+# Deployment para o Servidor A (Python - CountWords)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server-a-deployment
+  namespace: grpc-textprocessor
+  labels:
+    app: server-a
+    service: words-counter
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: server-a
+  template:
+    metadata:
+      labels:
+        app: server-a
+        service: words-counter
+    spec:
+      containers:
+      - name: server-a-words
+        image: server-a-words:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 50051
+        env:
+        - name: GRPC_PORT
+          value: "50051"
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+        livenessProbe:
+          tcpSocket:
+            port: 50051
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: 50051
+          initialDelaySeconds: 5
+          periodSeconds: 5
+
+---
+# Service para o Servidor A
+apiVersion: v1
+kind: Service
+metadata:
+  name: server-a-service
+  namespace: grpc-textprocessor
+  labels:
+    app: server-a
+    service: words-counter
+spec:
+  selector:
+    app: server-a
+  ports:
+    - name: grpc
+      protocol: TCP
+      port: 50051
+      targetPort: 50051
+  type: ClusterIP

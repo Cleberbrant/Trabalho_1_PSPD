@@ -1,0 +1,164 @@
+# ConfigMap para a configuração do Envoy adaptada para Kubernetes
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: envoy-config
+  namespace: grpc-textprocessor
+data:
+  envoy.yaml: |
+    static_resources:
+      listeners:
+        - name: grpcweb_listener
+          address:
+            socket_address:
+              address: 0.0.0.0
+              port_value: 8080
+          filter_chains:
+            - filters:
+                - name: envoy.filters.network.http_connection_manager
+                  typed_config:
+                    "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+                    stat_prefix: ingress_http
+                    codec_type: AUTO
+                    route_config:
+                      name: local_route
+                      virtual_hosts:
+                        - name: all
+                          domains: ["*"]
+                          routes:
+                            - match: { prefix: "/" }
+                              route:
+                                cluster: gateway_cluster
+                                timeout: 0s
+                    http_filters:
+                      - name: envoy.filters.http.lua
+                        typed_config:
+                          "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
+                          inline_code: |
+                            function envoy_on_request(request_handle)
+                              if request_handle:headers():get(":method") == "OPTIONS" then
+                                local headers = {
+                                  [":status"] = "200",
+                                  ["access-control-allow-origin"] = "*",
+                                  ["access-control-allow-methods"] = "GET, POST, OPTIONS",
+                                  ["access-control-allow-headers"] = "content-type,x-grpc-web,x-user-agent,authorization",
+                                  ["access-control-max-age"] = "1728000",
+                                  ["access-control-allow-credentials"] = "true"
+                                }
+                                request_handle:respond(headers, "")
+                              end
+                            end
+
+                            function envoy_on_response(response_handle)
+                              response_handle:headers():replace("access-control-allow-origin", "*")
+                              response_handle:headers():replace("access-control-expose-headers", "grpc-status,grpc-message")
+                              response_handle:headers():replace("access-control-allow-credentials", "true")
+                            end
+                      - name: envoy.filters.http.grpc_web
+                        typed_config:
+                          "@type": type.googleapis.com/envoy.extensions.filters.http.grpc_web.v3.GrpcWeb
+                      - name: envoy.filters.http.router
+                        typed_config:
+                          "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+
+      clusters:
+        - name: gateway_cluster
+          type: LOGICAL_DNS
+          connect_timeout: 1s
+          http2_protocol_options: {}
+          lb_policy: ROUND_ROBIN
+          load_assignment:
+            cluster_name: gateway_cluster
+            endpoints:
+              - lb_endpoints:
+                  - endpoint:
+                      address:
+                        socket_address:
+                          address: gateway-service
+                          port_value: 4001
+
+    admin:
+      access_log_path: /tmp/admin_access.log
+      address:
+        socket_address:
+          address: 0.0.0.0
+          port_value: 9901
+
+---
+# Deployment para o Envoy
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: envoy-deployment
+  namespace: grpc-textprocessor
+  labels:
+    app: envoy
+    service: grpc-web-proxy
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: envoy
+  template:
+    metadata:
+      labels:
+        app: envoy
+        service: grpc-web-proxy
+    spec:
+      containers:
+      - name: envoy
+        image: envoyproxy/envoy:v1.29-latest
+        ports:
+        - containerPort: 8080
+        - containerPort: 9901
+        volumeMounts:
+        - name: envoy-config
+          mountPath: /etc/envoy
+          readOnly: true
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /ready
+            port: 9901
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 9901
+          initialDelaySeconds: 10
+          periodSeconds: 5
+      volumes:
+      - name: envoy-config
+        configMap:
+          name: envoy-config
+
+---
+# Service para o Envoy
+apiVersion: v1
+kind: Service
+metadata:
+  name: envoy-service
+  namespace: grpc-textprocessor
+  labels:
+    app: envoy
+    service: grpc-web-proxy
+spec:
+  selector:
+    app: envoy
+  ports:
+    - name: grpc-web
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+    - name: admin
+      protocol: TCP
+      port: 9901
+      targetPort: 9901
+  type: LoadBalancer

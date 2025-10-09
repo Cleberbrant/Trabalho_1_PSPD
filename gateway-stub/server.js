@@ -7,7 +7,7 @@ import { fileURLToPath } from "url";
 const { ServerReflection } = reflectionPkg || {};
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const PROTO_PATH = path.join(__dirname, "..", "proto", "textprocessor.proto");
+const PROTO_PATH = path.join(__dirname, "proto", "textprocessor.proto");
 
 const pkgDef = protoLoader.loadSync(PROTO_PATH, {
   keepCase: true,
@@ -37,15 +37,6 @@ const impl = {
   CountCharacters(call, cb) {
     clientB.CountCharacters({ text: call.request.text }, cb);
   },
-  //   StreamWords(call) {
-  //     call.end();
-  //   },
-  //   CountMultipleTexts(call, cb) {
-  //     cb(null, { total_words: 0, total_chars: 0, text_count: 0 });
-  //   },
-  //   AnalyzeTextStream(stream) {
-  //     stream.end();
-  //   },
 };
 
 function start() {

@@ -1,0 +1,20 @@
+# Namespace para organizar todos os recursos
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: grpc-textprocessor
+  labels:
+    name: grpc-textprocessor
+
+---
+# ConfigMap para variáveis de ambiente compartilhadas
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grpc-config
+  namespace: grpc-textprocessor
+data:
+  SERVER_A_HOST: "server-a-service:50051"
+  SERVER_B_HOST: "server-b-service:50052"
+  GATEWAY_HOST: "gateway-service:4001"
+  ENVOY_HOST: "envoy-service:8080"

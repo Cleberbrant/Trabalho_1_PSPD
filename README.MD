@@ -1,17 +1,30 @@
+| Aluno                                | Matrícula |
+| ------------------------------------ | --------- |
+| Cleber de Oliveira Brant             | 200061216 |
+| Matheus Ferreira Diogo               | 200024949 |
+| Milena Beatriz Aires de Santana Dias | 190093625 |
+| Sabrina Caldas Berno                 | 211029586 |
+
 # PSPD - Sistema gRPC (Palavras / Caracteres)
 
 ## Objetivo Principal
 
 O projeto implementa um sistema de processamento de texto distribuído que conta palavras e caracteres usando diferentes servidores, demonstrando conceitos de:
+
 - Comunicação entre serviços (microserviços)
-- Protocolo gRPC com diferentes tipos de streaming
-- Arquitetura distribuída com múltiplas linguagens 
-- Proxy/Gateway para roteamento de requisições 
+- Protocolo gRPC
+- Arquitetura distribuída com múltiplas linguagens
+- Proxy/Gateway para roteamento de requisições
+
 - gRPC-Web para comunicação frontend-backend
 
 Ambiente local: Ubuntu + Python (server A) + Go (server B) + Node (gateway + frontend) + Envoy (gRPC-Web).
 
-## 1. Instalar dependências base (Ubuntu), é necessário ter docker instalado(Para rodar envoy.yaml)
+# Existem duas formas de ambientação, local e utilizando Docker/Kubernetes
+
+## Ambiente local
+
+### 1. Instalar dependências base (Ubuntu), é necessário ter docker instalado(Para rodar envoy.yaml)
 
 ```bash
 sudo apt update
@@ -150,3 +163,65 @@ Se usar venv:
 ```bash
 deactivate
 ```
+
+## Versão Kubernetes com ambiente Docker
+
+### Pré-requisitos
+
+- Docker instalado e funcionando (`docker ps` deve funcionar)
+- kubectl instalado
+- Cluster Kubernetes (minikube)
+
+### Como Rodar
+
+```bash
+# 1. Iniciar cluster (escolha um)
+minikube start
+
+# 2. Buildar docker-files(Na raiz do projeto)
+eval $(minikube docker-env)
+
+docker build -t server-a-words:latest server-a-words
+docker build -t server-b-chars:latest server-b-chars
+docker build -t gateway-stub:latest -f gateway-stub/Dockerfile .
+docker build -t frontend-web:latest frontend-web
+
+# Deploy no Kubernetes
+cd k8s
+./deploy.sh
+
+# 3. Acessar (em terminais separados)
+kubectl port-forward -n grpc-textprocessor service/frontend-service 3000:80
+kubectl port-forward -n grpc-textprocessor service/envoy-service 8080:8080
+
+# 3.1 Verificar se tudo esta executando corretamente
+cd k8s
+./verify.sh
+
+# 4. Abri link da aplicação
+Frontend: http://localhost:3000
+
+# 5. Ver logs dos pods:
+kubectl logs -n grpc-textprocessor -l app=server-a -f --tail=50
+kubectl logs -n grpc-textprocessor -l app=server-b -f --tail=50
+kubectl logs -n grpc-textprocessor -l app=frontend -f --tail=50
+
+```
+
+### Como Parar
+
+```bash
+# Remover do Kubernetes
+cd k8s
+./cleanup.sh
+
+# Parar cluster (opcional)
+minikube stop
+```
+
+### O que é Criado
+
+- **5 serviços** com 2 replicas cada (total: 10 pods)
+- **Load balancers** automáticos
+- **Service discovery** interno
+- **Configurações** via ConfigMaps

@@ -1,0 +1,76 @@
+# Deployment para o Gateway (Node.js)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway-deployment
+  namespace: grpc-textprocessor
+  labels:
+    app: gateway
+    service: grpc-gateway
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: gateway
+  template:
+    metadata:
+      labels:
+        app: gateway
+        service: grpc-gateway
+    spec:
+      containers:
+      - name: gateway-stub
+        image: gateway-stub:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 4001
+        env:
+        - name: SERVER_A_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: grpc-config
+              key: SERVER_A_HOST
+        - name: SERVER_B_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: grpc-config
+              key: SERVER_B_HOST
+        - name: GRPC_PORT
+          value: "4001"
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+        livenessProbe:
+          tcpSocket:
+            port: 4001
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: 4001
+          initialDelaySeconds: 10
+          periodSeconds: 5
+
+---
+# Service para o Gateway
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway-service
+  namespace: grpc-textprocessor
+  labels:
+    app: gateway
+    service: grpc-gateway
+spec:
+  selector:
+    app: gateway
+  ports:
+    - name: grpc
+      protocol: TCP
+      port: 4001
+      targetPort: 4001
+  type: ClusterIP
