@@ -15,6 +15,7 @@ O projeto implementa um sistema de processamento de texto distribuído que conta
 - Protocolo gRPC
 - Arquitetura distribuída com múltiplas linguagens
 - Proxy/Gateway para roteamento de requisições
+
 - gRPC-Web para comunicação frontend-backend
 
 Ambiente local: Ubuntu + Python (server A) + Go (server B) + Node (gateway + frontend) + Envoy (gRPC-Web).
