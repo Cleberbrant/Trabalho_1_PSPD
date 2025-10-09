@@ -24,17 +24,6 @@ func (s *charServer) CountCharacters(ctx context.Context, req *textprocessorpb.T
     return &textprocessorpb.CharCountResponse{CharCount: int32(count)}, nil
 }
 
-// // Métodos de streaming não usados aqui (stubs)
-// func (s *charServer) StreamWords(*textprocessorpb.TextRequest, textprocessorpb.TextProcessor_StreamWordsServer) error {
-//     return nil
-// }
-// func (s *charServer) CountMultipleTexts(textprocessorpb.TextProcessor_CountMultipleTextsServer) error {
-//     return nil
-// }
-// func (s *charServer) AnalyzeTextStream(textprocessorpb.TextProcessor_AnalyzeTextStreamServer) error {
-//     return nil
-// }
-
 func truncate(s string, n int) string {
     r := []rune(s)
     if len(r) <= n {

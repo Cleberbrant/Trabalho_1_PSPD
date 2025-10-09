@@ -56,7 +56,6 @@ echo ""
 echo "📋 6. URLs de Acesso:"
 echo "🌐 Frontend Web: http://localhost:3000"
 echo "🔗 gRPC-Web (Envoy): http://localhost:8080"
-echo "⚙️  Envoy Admin: http://localhost:9901 (se port-forward ativo)"
 
 echo ""
 echo "📋 7. Comandos úteis:"

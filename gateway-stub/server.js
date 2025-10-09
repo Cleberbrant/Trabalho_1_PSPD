@@ -37,15 +37,6 @@ const impl = {
   CountCharacters(call, cb) {
     clientB.CountCharacters({ text: call.request.text }, cb);
   },
-  //   StreamWords(call) {
-  //     call.end();
-  //   },
-  //   CountMultipleTexts(call, cb) {
-  //     cb(null, { total_words: 0, total_chars: 0, text_count: 0 });
-  //   },
-  //   AnalyzeTextStream(stream) {
-  //     stream.end();
-  //   },
 };
 
 function start() {
